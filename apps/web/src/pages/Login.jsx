@@ -87,66 +87,25 @@ export default function Login() {
 
   // Add global event listeners for drag - only on desktop
   React.useEffect(() => {
-  if (!isDragging) return
-
-  const options = { passive: false }
-
-  const move = (e) => {
-    if (e.cancelable) e.preventDefault()
-    handleMouseMove(e)
-  }
-
-  const end = (e) => {
-    if (e.cancelable) e.preventDefault()
-    handleMouseUp()
-  }
-
-  const stopRefresh = (e) => {
-    if (e.cancelable) {
-      e.preventDefault()
-      e.stopPropagation()
+    const isDesktop = window.innerWidth >= 768 // md breakpoint
+    if (isDragging && isDesktop) {
+      const nonPassiveTouch = { passive: false }
+      window.addEventListener('mousemove', handleMouseMove)
+      window.addEventListener('mouseup', handleMouseUp)
+      window.addEventListener('touchmove', handleMouseMove, nonPassiveTouch)
+      window.addEventListener('touchend', handleMouseUp, nonPassiveTouch)
+      
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove)
+        window.removeEventListener('mouseup', handleMouseUp)
+        window.removeEventListener('touchmove', handleMouseMove, nonPassiveTouch)
+        window.removeEventListener('touchend', handleMouseUp, nonPassiveTouch)
+      }
     }
-  }
+  }, [isDragging, ropeStretch, startY, lampOn])
 
-  document.body.style.overflow = "hidden"
-  document.body.style.touchAction = "none"
-  document.documentElement.style.overscrollBehavior = "none"
-  document.body.style.overscrollBehavior = "none"
-
-  window.addEventListener("mousemove", move)
-  window.addEventListener("mouseup", end)
-
-  window.addEventListener("touchmove", move, options)
-  window.addEventListener("touchend", end, options)
-
-  window.addEventListener("touchmove", stopRefresh, options)
-
-  return () => {
-    document.body.style.overflow = ""
-    document.body.style.touchAction = ""
-    document.documentElement.style.overscrollBehavior = ""
-    document.body.style.overscrollBehavior = ""
-
-    window.removeEventListener("mousemove", move)
-    window.removeEventListener("mouseup", end)
-
-    window.removeEventListener("touchmove", move)
-    window.removeEventListener("touchend", end)
-
-    window.removeEventListener("touchmove", stopRefresh)
-  }
-}, [isDragging, ropeStretch])
   return (
-    <div
-  className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4 overflow-hidden relative"
-  style={{
-  overscrollBehavior: "none",
-  touchAction: "none",
-  WebkitOverflowScrolling: "auto",
-  position: "fixed",
-  inset: 0
-}}
->
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4 overflow-hidden relative">
       {/* Ambient Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className={`absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full transition-all duration-1000 ${
